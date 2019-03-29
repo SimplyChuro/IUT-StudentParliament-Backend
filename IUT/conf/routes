@@ -1,0 +1,23 @@
+# Post API routes
+GET		/api/v1/post				controllers.PostController.getAll(min : Integer, max : Integer)
+GET		/api/v1/post/size			controllers.PostController.getSize()
+GET		/api/v1/post/page/size		controllers.PostController.getPageSize()
+GET		/api/v1/post/:id			controllers.PostController.get(id : Long)
+POST	/api/v1/post				controllers.PostController.create(request: Request)
+PUT		/api/v1/post/:id			controllers.PostController.update(request: Request, id : Long)
+DELETE	/api/v1/post/:id			controllers.PostController.delete(id : Long)
+
+
+# Picture API routes
+GET		/api/v1/picture				controllers.PictureController.getAll(min : Integer, max : Integer)
+GET		/api/v1/picture/size		controllers.PictureController.getSize()
+GET		/api/v1/picture/page/size	controllers.PictureController.getPageSize()
+GET		/api/v1/picture/:id			controllers.PictureController.get(id : Long)
+POST	/api/v1/picture				controllers.PictureController.create(request: Request)
+PUT		/api/v1/picture/:id			controllers.PictureController.update(request: Request, id : Long)
+DELETE	/api/v1/picture/:id			controllers.PictureController.delete(id : Long)
+
+
+# Login API routes
+POST	/api/v1/login				controllers.LoginController.login(request : Request)
+GET		/api/v1/logout				controllers.LoginController.logout(request : Request)
