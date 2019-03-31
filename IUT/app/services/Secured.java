@@ -21,9 +21,8 @@ public class Secured extends Security.Authenticator {
 
 	@Override
 	public Optional<String> getUsername(Request request) {
-		
 		try {
-			Long checker = Long.parseLong(request.session().getOptional("id").toString());
+			Long checker = Long.parseLong(request.session().getOptional("id").get());
 			User userChecker = User.find.byId(checker);
 			if(userChecker != null) {
 				return request.session().getOptional("id");

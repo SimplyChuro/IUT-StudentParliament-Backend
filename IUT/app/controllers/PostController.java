@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.Picture;
 import models.Post;
+import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -162,7 +163,7 @@ public class PostController extends Controller {
 	
 	//Delete post
 	@Security.Authenticated(Secured.class)
-	public CompletionStage<Result> delete(Long id) {
+	public CompletionStage<Result> delete(Http.Request request, Long id) {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {	
 				post = Post.find.byId(id);

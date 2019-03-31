@@ -5,7 +5,7 @@ GET		/api/v1/post/page/size		controllers.PostController.getPageSize()
 GET		/api/v1/post/:id			controllers.PostController.get(id : Long)
 POST	/api/v1/post				controllers.PostController.create(request: Request)
 PUT		/api/v1/post/:id			controllers.PostController.update(request: Request, id : Long)
-DELETE	/api/v1/post/:id			controllers.PostController.delete(id : Long)
+DELETE	/api/v1/post/:id			controllers.PostController.delete(request: Request, id : Long)
 
 
 # Picture API routes
