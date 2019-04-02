@@ -100,7 +100,7 @@ public class PictureController  extends Controller {
 	public CompletionStage<Result> create(Http.Request request) {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {
-				jsonNode = request.body().asJson().get("picture");	
+				jsonNode = request.body().asJson();	
 				picture = new Picture();
 				picture.name = jsonNode.findValue("name").asText();
 				picture.published = new Date();
@@ -117,7 +117,7 @@ public class PictureController  extends Controller {
 	public CompletionStage<Result> update(Http.Request request, Long id) {
 		return calculateResponse().thenApplyAsync(answer -> {	
 			try {
-				jsonNode = request.body().asJson().get("picture");
+				jsonNode = request.body().asJson();
 				picture = Picture.find.byId(id);
 				picture.name = jsonNode.findValue("name").asText();
 				picture.published = new Date();

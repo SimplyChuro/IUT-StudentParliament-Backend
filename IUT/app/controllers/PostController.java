@@ -101,23 +101,25 @@ public class PostController extends Controller {
 	public CompletionStage<Result> create(Http.Request request) {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {		
-				jsonNode = request.body().asJson().get("post");
+				jsonNode = request.body().asJson();
 				
 				post = new Post();
 				post.title = jsonNode.findPath("title").asText();	
 				post.description = jsonNode.findPath("description").asText();
 				post.save();
 				
-				for(JsonNode pictureNode : jsonNode.get("pictures")) {
-					Picture picture = new Picture();
-					picture.name = pictureNode.findPath("name").asText();
-					picture.published = new Date();
-					picture.post = post;
-					picture.save();
+				if(jsonNode.has("pictures")) {
+					for(JsonNode pictureNode : jsonNode.get("pictures")) {
+						Picture picture = new Picture();
+						picture.name = pictureNode.findPath("name").asText();
+						picture.published = new Date();
+						picture.post = post;
+						picture.save();
+					}
 				}
-				
 				return ok(Json.toJson(post));
 			} catch(Exception e) {
+				e.printStackTrace();
 				return badRequest();
 			}
 		}, httpExecutionContext.current());
@@ -128,31 +130,33 @@ public class PostController extends Controller {
 	public CompletionStage<Result> update(Http.Request request, Long id) {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {
-				jsonNode = request.body().asJson().get("product");	
+				jsonNode = request.body().asJson();	
 				
 				post = Post.find.byId(id);
 				post.title = jsonNode.findPath("title").asText();	
 				post.description = jsonNode.findPath("description").asText();
 				post.update();
-				
-				for(Picture picture : post.pictures) {	
-					Boolean checker = false;
-					try {
-						for(JsonNode pictureNode : jsonNode.get("pictures")) {
 
-							if(picture.id == pictureNode.findPath("id").asLong()) {
-								checker = true;
+				if(jsonNode.has("pictures")) {
+					for(Picture picture : post.pictures) {	
+						Boolean checker = false;
+						try {
+							for(JsonNode pictureNode : jsonNode.get("pictures")) {
+	
+								if(picture.id == pictureNode.findPath("id").asLong()) {
+									checker = true;
+								}
 							}
+							
+							if(!(checker == true)) {
+								picture.delete();
+							}
+							
+						} catch(Exception e) {
+							return badRequest();
 						}
-						
-						if(!(checker == true)) {
-							picture.delete();
-						}
-						
-					} catch(Exception e) {
-						return badRequest();
-					}
-				}	
+					}	
+				}
 				
 				return ok(Json.toJson(post));
 			} catch(Exception e) {
