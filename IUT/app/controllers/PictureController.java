@@ -1,5 +1,8 @@
 package controllers;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -9,25 +12,35 @@ import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigFactory;
 
 import models.Picture;
 import models.Post;
 import play.libs.Json;
+import play.libs.Files.TemporaryFile;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
+import play.Environment;
+import services.PictureFilter;
 import services.Secured;
 
 public class PictureController  extends Controller {
-	
+
+	private PictureFilter filter = new PictureFilter();
 	private HttpExecutionContext httpExecutionContext;
 	private JsonNode jsonNode;
 	private ObjectNode objectNode;
 	private Picture picture;
 	private List<Picture> pictures;
 	private int size;
+	private static final String IMAGE_URL = "custom.settings.host.imageUrl";
+	
+	@Inject
+	private Environment environment;
 	
 	@Inject
     public PictureController(HttpExecutionContext ec) {
@@ -79,7 +92,7 @@ public class PictureController  extends Controller {
 		}, httpExecutionContext.current());
 	}
 	
-	//Get Post Page size	
+	//Get Picture Page size	
 	public CompletionStage<Result> getPageSize() {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {
@@ -94,34 +107,64 @@ public class PictureController  extends Controller {
 			}
 		}, httpExecutionContext.current());
 	}
-	
+
 	//Create picture  
 	@Security.Authenticated(Secured.class)
 	public CompletionStage<Result> create(Http.Request request) {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {
-				jsonNode = request.body().asJson();	
-				picture = new Picture();
-				picture.name = jsonNode.findValue("name").asText();
-				picture.published = new Date();
-				picture.save();
-				return ok(Json.toJson(picture));
+				Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+		        Http.MultipartFormData.FilePart<TemporaryFile> pictureFile = body.getFile("picture");
+		        
+		        if (pictureFile != null) {
+		            String fileName = pictureFile.getFilename();
+		            long fileSize = pictureFile.getFileSize();
+		            String contentType = pictureFile.getContentType();
+
+		            if(filter.isValidPicture(fileName, contentType, fileSize)) {
+		            	if (ConfigFactory.load().hasPath(IMAGE_URL)) {
+		                    TemporaryFile file = pictureFile.getRef();
+				            Date currentDate = new Date();
+				            String customName = currentDate.getTime() + "_" + fileName;
+			                
+				            Picture newPicture = new Picture();
+				            
+				            newPicture.name = customName;
+				            newPicture.published = currentDate;
+				            newPicture.type = contentType;
+				            newPicture.url = ConfigFactory.load().getString(IMAGE_URL) + customName;
+				            
+				            File newFile = new File(environment.rootPath().toString() + "//public//images//" + customName);
+			                file.moveFileTo(newFile);
+			            
+			                newPicture.save();
+				            return ok(Json.toJson(newPicture));	
+		                } else {
+		                    return badRequest();    
+		                }
+		            } else {
+		            	return forbidden();
+		            }
+		        } else {
+		            return badRequest();
+		        }
 			} catch(Exception e) {
 				return badRequest();
 			}
 		}, httpExecutionContext.current());
 	}
 	
-	//Update picture  
+	//Update picture -- inactive
 	@Security.Authenticated(Secured.class)
 	public CompletionStage<Result> update(Http.Request request, Long id) {
 		return calculateResponse().thenApplyAsync(answer -> {	
 			try {
 				jsonNode = request.body().asJson();
 				picture = Picture.find.byId(id);
-				picture.name = jsonNode.findValue("name").asText();
-				picture.published = new Date();
-				picture.update();
+//				picture.name = jsonNode.findValue("name").asText();
+//				picture.url = jsonNode.findValue("url").asText();
+//				picture.published = new Date();
+//				picture.update();
 				return ok(Json.toJson(picture));
 			} catch(Exception e) {
 				return badRequest();
@@ -142,4 +185,5 @@ public class PictureController  extends Controller {
 			}
 		}, httpExecutionContext.current());
 	}
+	
 }

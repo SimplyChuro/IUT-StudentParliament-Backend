@@ -6,6 +6,8 @@
 create table pictures (
   id                            bigserial not null,
   name                          varchar(255),
+  type                          varchar(255),
+  url                           varchar(255),
   published                     timestamptz,
   post_id                       bigint,
   constraint pk_pictures primary key (id)
@@ -14,7 +16,7 @@ create table pictures (
 create table posts (
   id                            bigserial not null,
   title                         varchar(255),
-  description                   varchar(2048),
+  description                   varchar(16384),
   published                     timestamptz,
   user_id                       bigint,
   constraint pk_posts primary key (id)
@@ -22,9 +24,9 @@ create table posts (
 
 create table users (
   id                            bigserial not null,
-  name                          varchar(256) not null,
-  surname                       varchar(256) not null,
-  email                         varchar(256) not null,
+  name                          varchar(255) not null,
+  surname                       varchar(255) not null,
+  email                         varchar(255) not null,
   password                      varchar(255),
   auth_token                    varchar(255),
   constraint uq_users_email unique (email),

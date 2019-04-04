@@ -15,11 +15,14 @@ import models.Post;
 import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.Files.TemporaryFile;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Security;
 import services.Secured;
+
+import java.nio.file.Paths;
 
 public class PostController extends Controller {
 	
@@ -106,15 +109,14 @@ public class PostController extends Controller {
 				post = new Post();
 				post.title = jsonNode.findPath("title").asText();	
 				post.description = jsonNode.findPath("description").asText();
+				post.published = new Date();
 				post.save();
 				
 				if(jsonNode.has("pictures")) {
 					for(JsonNode pictureNode : jsonNode.get("pictures")) {
-						Picture picture = new Picture();
-						picture.name = pictureNode.findPath("name").asText();
-						picture.published = new Date();
+						Picture picture = Picture.find.byId(pictureNode.findValue("id").asLong());
 						picture.post = post;
-						picture.save();
+						picture.update();
 					}
 				}
 				return ok(Json.toJson(post));
@@ -148,16 +150,33 @@ public class PostController extends Controller {
 								}
 							}
 							
-							if(!(checker == true)) {
+							if(!checker) {
 								picture.delete();
 							}
 							
 						} catch(Exception e) {
 							return badRequest();
 						}
-					}	
+					}
+					
+					for(JsonNode pictureNode : jsonNode.get("pictures")) {
+						Boolean checker = false;
+						for(Picture picture : post.pictures) {	
+							
+							
+							if(picture.id == pictureNode.findPath("id").asLong()) {
+								checker = true;
+							}
+						}
+						if(!checker) {
+							Picture _picture = Picture.find.byId(pictureNode.findPath("id").asLong());
+							_picture.post = post;
+							_picture.update();
+						}
+						
+					}
 				}
-				
+			
 				return ok(Json.toJson(post));
 			} catch(Exception e) {
 				return badRequest();

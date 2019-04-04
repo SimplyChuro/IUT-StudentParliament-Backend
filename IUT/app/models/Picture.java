@@ -1,5 +1,6 @@
 package models;
 
+import java.sql.Blob;
 import java.util.*;
 import javax.persistence.*;
 
@@ -19,6 +20,10 @@ public class Picture extends Model {
 	public Long id;
 		
 	public String name;
+	
+	public String type;
+	
+	public String url;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="GMT")
 	@Formats.DateTime(pattern="dd/MM/yyyy")

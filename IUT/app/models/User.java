@@ -25,13 +25,13 @@ public class User extends Model {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	public Long id;
 	
-	@Column(length = 256, nullable = false)
+	@Column(nullable = false)
 	public String name;
     
-    @Column(length = 256, nullable = false)
+    @Column(nullable = false)
 	public String surname;
     
-    @Column(length = 256, unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
 	public String email;
     
     @JsonIgnore

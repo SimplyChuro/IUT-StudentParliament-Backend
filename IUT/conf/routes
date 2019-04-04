@@ -16,8 +16,9 @@ GET		/api/v1/picture/:id			controllers.PictureController.get(id : Long)
 POST	/api/v1/picture				controllers.PictureController.create(request: Request)
 PUT		/api/v1/picture/:id			controllers.PictureController.update(request: Request, id : Long)
 DELETE	/api/v1/picture/:id			controllers.PictureController.delete(id : Long)
+GET  	/api/v1/images/*file        controllers.Assets.at(path="/public/images", file)
 
 
 # Login API routes
 POST	/api/v1/login				controllers.LoginController.login(request : Request)
-GET		/api/v1/logout				controllers.LoginController.logout(request : Request)
+POST	/api/v1/logout				controllers.LoginController.logout(request : Request)

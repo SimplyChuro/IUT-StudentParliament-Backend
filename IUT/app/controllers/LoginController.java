@@ -40,7 +40,7 @@ public class LoginController extends Controller {
     }
 	
 	public static User getUser(Http.Request request) {
-		Long checker = Long.parseLong(request.session().getOptional("id").toString());
+		Long checker = Long.parseLong(request.session().getOptional("id").get());
 		User user = User.find.byId(checker);
 	    return user;
 	}

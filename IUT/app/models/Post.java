@@ -20,7 +20,7 @@ public class Post extends Model {
 	
 	public String title;
 	
-	@Column(length = 2048)
+	@Column(length = 16384)
 	public String description;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="GMT")
