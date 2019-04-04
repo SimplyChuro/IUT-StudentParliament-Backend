@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
@@ -178,6 +179,8 @@ public class PictureController  extends Controller {
 		return calculateResponse().thenApplyAsync(answer -> {
 			try {
 				picture = Picture.find.byId(id);
+				Files.deleteIfExists(Paths.get(environment.rootPath().toString() + "//public//images//" + picture.name));
+				
 				picture.delete();
 				return ok(Json.toJson(""));
 			} catch(Exception e) {

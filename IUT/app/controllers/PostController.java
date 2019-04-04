@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Picture;
 import models.Post;
 import models.User;
+import play.Environment;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.Files.TemporaryFile;
@@ -22,6 +23,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 import services.Secured;
 
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class PostController extends Controller {
@@ -31,6 +33,9 @@ public class PostController extends Controller {
 	private Post post;
 	private JsonNode jsonNode;
 	private int size;
+	
+	@Inject
+	private Environment environment;
 	
 	@Inject
     public PostController(HttpExecutionContext ec) {
@@ -192,6 +197,7 @@ public class PostController extends Controller {
 				post = Post.find.byId(id);
 				
 				for(Picture picture : post.pictures) {
+					Files.deleteIfExists(Paths.get(environment.rootPath().toString() + "//public//images//" + picture.name));
 					picture.delete();
 				}
 			
