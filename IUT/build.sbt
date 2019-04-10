@@ -1,4 +1,4 @@
-name := """International University Of Travnik"""
+name := """iutstudentparliament""
 organization := "IUT"
 
 version := "1.0-SNAPSHOT"
