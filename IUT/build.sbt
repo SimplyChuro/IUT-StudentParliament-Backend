@@ -1,4 +1,4 @@
-name := """iutstudentparliament""
+name := """iutstudentparliament"""
 organization := "IUT"
 
 version := "1.0-SNAPSHOT"
