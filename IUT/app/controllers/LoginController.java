@@ -24,9 +24,6 @@ import play.mvc.Security;
 import services.Secured;
 
 public class LoginController extends Controller {
-
-	public final static String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
-	public final static String AUTH_TOKEN = "authToken";
 	
 	private HttpExecutionContext httpExecutionContext;
 	private User user;
@@ -40,9 +37,8 @@ public class LoginController extends Controller {
     }
 	
 	public static User getUser(Http.Request request) {
-		Long checker = Long.parseLong(request.session().getOptional("id").get());
-		User user = User.find.byId(checker);
-	    return user;
+		String token = request.session().getOptional("auth_token").get();
+	    return User.findByAuthToken(token);
 	}
 	
 	private static CompletionStage<String> calculateResponse() {
@@ -61,8 +57,8 @@ public class LoginController extends Controller {
 			    		.findOne();	 
 			    
 			    if (BCrypt.checkpw(jsonNode.findPath("password").textValue(), user.getPassword())) {   
-			    	response.put("token", request.session().toString());
-			        return ok(response).addingToSession(request, "id", user.id.toString());    
+			    	user.createToken();
+			        return ok(response).addingToSession(request, "id", user.id.toString()).addingToSession(request, "auth_token",  user.getAuthToken());    
 		        } else {
 		        	response.put("error_message", "Incorrect email or password");
 			    	return notFound(response);
@@ -76,6 +72,7 @@ public class LoginController extends Controller {
 	
 	public CompletionStage<Result> logout(Http.Request request) {
 	    return calculateResponse().thenApplyAsync(answer -> {
+	    	getUser(request).deleteAuthToken();
 	    	return ok(Json.toJson("")).removingFromSession(request, "id");
 	    }, httpExecutionContext.current());
     }
