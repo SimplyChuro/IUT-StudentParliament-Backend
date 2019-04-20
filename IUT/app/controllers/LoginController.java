@@ -58,6 +58,7 @@ public class LoginController extends Controller {
 			    
 			    if (BCrypt.checkpw(jsonNode.findPath("password").textValue(), user.getPassword())) {   
 			    	user.createToken();
+			    	response.put("token", user.getAuthToken());
 			        return ok(response).addingToSession(request, "id", user.id.toString()).addingToSession(request, "auth_token",  user.getAuthToken());    
 		        } else {
 		        	response.put("error_message", "Incorrect email or password");
